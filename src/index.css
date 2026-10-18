@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-papel font-sans text-[1.0625rem] leading-relaxed text-tinta antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-normal text-tinta;
+  }
+  ::selection {
+    @apply bg-borda-wash text-tinta;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-molho ring-offset-2 ring-offset-papel;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+  /* Faixa de toalha xadrez: só como borda de seção, nunca de fundo */
+  .faixa-xadrez {
+    @apply h-3 w-full bg-xadrez;
+    background-size: 24px 24px;
+  }
+  /* Comanda: o papel térmico do pedido, com picote em baixo */
+  .comanda {
+    @apply relative bg-white font-mono text-[0.875rem] leading-6 text-tinta;
+    box-shadow: 0 1px 0 #E6E2D8, 0 12px 30px -18px rgba(27, 58, 42, 0.35);
+  }
+  .comanda::after {
+    content: '';
+    @apply absolute inset-x-0 -bottom-2 h-2;
+    background: radial-gradient(circle at 6px 0, transparent 5px, #fff 5.5px) repeat-x;
+    background-size: 12px 8px;
+    transform: rotate(180deg);
+  }
+}

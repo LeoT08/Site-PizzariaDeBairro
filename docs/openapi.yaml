@@ -1,0 +1,502 @@
+openapi: 3.0.3
+info:
+  title: Pizza do Bairro API
+  version: 1.0.0
+  description: Contrato consumido pelo front-end. Regras de preço e de status em docs/api.md.
+servers:
+  - url: /api
+security:
+  - bearer: []
+
+paths:
+  /auth/login:
+    post:
+      tags: [auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Auth' }
+        '401': { $ref: '#/components/responses/Error' }
+  /auth/register:
+    post:
+      tags: [auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterInput' }
+      responses:
+        '201': { $ref: '#/components/responses/Auth' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /auth/me:
+    get:
+      tags: [auth]
+      responses:
+        '200':
+          description: Usuário logado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Error' }
+
+  /menu/rules:
+    get:
+      tags: [catalog]
+      security: []
+      responses:
+        '200':
+          description: Tamanhos, bordas, promoção, taxas e horário
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MenuRules' }
+  /categories:
+    get:
+      tags: [catalog]
+      security: []
+      responses:
+        '200':
+          description: Categorias
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Category' }
+  /products:
+    get:
+      tags: [catalog]
+      security: []
+      parameters:
+        - { name: category, in: query, schema: { $ref: '#/components/schemas/CategorySlug' } }
+        - { name: q, in: query, schema: { type: string } }
+        - { name: featured, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: Itens disponíveis
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Product' }
+  /products/{slug}:
+    get:
+      tags: [catalog]
+      security: []
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Item
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /orders/quote:
+    post:
+      tags: [orders]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/QuoteInput' }
+      responses:
+        '200':
+          description: Orçamento calculado pelo servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Quote' }
+        '422': { $ref: '#/components/responses/Error' }
+  /orders:
+    post:
+      tags: [orders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateOrderInput' }
+      responses:
+        '201':
+          description: Pedido criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /orders/me:
+    get:
+      tags: [orders]
+      responses:
+        '200':
+          description: Pedidos do usuário
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Order' }
+  /orders/{code}:
+    get:
+      tags: [orders]
+      parameters:
+        - { name: code, in: path, required: true, schema: { type: string }, description: Código sem o "#" }
+      responses:
+        '200':
+          description: Pedido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /admin/stats:
+    get:
+      tags: [admin]
+      responses:
+        '200':
+          description: Indicadores
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminStats' }
+        '403': { $ref: '#/components/responses/Error' }
+  /admin/products:
+    get:
+      tags: [admin]
+      responses:
+        '200':
+          description: Todos os itens
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Product' }
+    post:
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductInput' }
+      responses:
+        '201':
+          description: Criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+        '422': { $ref: '#/components/responses/Error' }
+  /admin/products/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    put:
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductInput' }
+      responses:
+        '200':
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [admin]
+      responses:
+        '204': { description: Excluído }
+        '404': { $ref: '#/components/responses/Error' }
+  /admin/orders:
+    get:
+      tags: [admin]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, received, baking, out_for_delivery, ready_for_pickup, delivered, cancelled]
+      responses:
+        '200':
+          description: Pedidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Order' }
+  /admin/orders/{id}/status:
+    patch:
+      tags: [admin]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { $ref: '#/components/schemas/OrderStatus' }
+      responses:
+        '200':
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+        '422': { $ref: '#/components/responses/Error' }
+
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer, bearerFormat: JWT }
+
+  responses:
+    Auth:
+      description: Sessão criada
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [token, user]
+            properties:
+              token: { type: string }
+              user: { $ref: '#/components/schemas/User' }
+    Error:
+      description: Erro
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error:
+                type: object
+                required: [code, message]
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  fields: { type: object, additionalProperties: { type: string } }
+
+  schemas:
+    User:
+      type: object
+      required: [id, name, email, phone, role, createdAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string, nullable: true }
+        role: { type: string, enum: [customer, admin] }
+        createdAt: { type: string, format: date-time }
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+    RegisterInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string }
+        password: { type: string, minLength: 6 }
+
+    CategorySlug: { type: string, enum: [pizzas, salgados, bebidas] }
+    PizzaSize: { type: string, enum: [broto, media, grande] }
+    CrustType: { type: string, enum: [tradicional, catupiry, cheddar] }
+    Category:
+      type: object
+      required: [slug, name, description]
+      properties:
+        slug: { $ref: '#/components/schemas/CategorySlug' }
+        name: { type: string }
+        description: { type: string }
+    ProductInput:
+      type: object
+      required: [slug, name, category, description, image, priceCents, sizePrices, portion, tags, featured, available]
+      properties:
+        slug: { type: string, pattern: '^[a-z0-9-]+$' }
+        name: { type: string }
+        category: { $ref: '#/components/schemas/CategorySlug' }
+        description: { type: string }
+        image: { type: string }
+        priceCents: { type: integer, description: Para pizza, igual a sizePrices.grande }
+        sizePrices:
+          type: object
+          nullable: true
+          required: [broto, media, grande]
+          properties:
+            broto: { type: integer }
+            media: { type: integer }
+            grande: { type: integer }
+        portion: { type: string, nullable: true }
+        tags: { type: array, items: { type: string } }
+        featured: { type: boolean }
+        available: { type: boolean }
+    Product:
+      allOf:
+        - $ref: '#/components/schemas/ProductInput'
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string }
+    MenuRules:
+      type: object
+      properties:
+        sizes:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { $ref: '#/components/schemas/PizzaSize' }
+              name: { type: string }
+              slices: { type: integer }
+              diameterCm: { type: integer }
+        crusts:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { $ref: '#/components/schemas/CrustType' }
+              name: { type: string }
+              priceCents: { type: integer }
+        promo:
+          type: object
+          properties:
+            weekdays: { type: array, items: { type: integer, minimum: 0, maximum: 6 } }
+            size: { $ref: '#/components/schemas/PizzaSize' }
+            priceCents: { type: integer }
+            label: { type: string }
+        deliveryFeeCents: { type: integer }
+        freeDeliveryFromCents: { type: integer }
+        deliveryEtaMin: { type: array, items: { type: integer }, minItems: 2, maxItems: 2 }
+        pickupEtaMin: { type: array, items: { type: integer }, minItems: 2, maxItems: 2 }
+        opensAt: { type: string, example: '18:00' }
+        closesAt: { type: string, example: '23:30' }
+
+    PizzaConfig:
+      type: object
+      required: [size, crust, secondFlavorId]
+      properties:
+        size: { $ref: '#/components/schemas/PizzaSize' }
+        crust: { $ref: '#/components/schemas/CrustType' }
+        secondFlavorId: { type: string, nullable: true }
+    CartItemInput:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId: { type: string }
+        quantity: { type: integer, minimum: 1, maximum: 20 }
+        pizza: { $ref: '#/components/schemas/PizzaConfig' }
+        notes: { type: string, maxLength: 140 }
+    QuoteInput:
+      type: object
+      required: [items, fulfillment]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/CartItemInput' } }
+        fulfillment: { type: string, enum: [delivery, pickup] }
+    Address:
+      type: object
+      required: [street, number, district]
+      properties:
+        street: { type: string }
+        number: { type: string }
+        district: { type: string }
+        complement: { type: string }
+        reference: { type: string }
+    CreateOrderInput:
+      allOf:
+        - $ref: '#/components/schemas/QuoteInput'
+        - type: object
+          required: [phone, payment]
+          properties:
+            address: { $ref: '#/components/schemas/Address' }
+            phone: { type: string }
+            payment: { type: string, enum: [pix, card, cash] }
+            changeForCents: { type: integer }
+    Quote:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId: { type: string }
+              name: { type: string }
+              details: { type: array, items: { type: string } }
+              unitPriceCents: { type: integer }
+              quantity: { type: integer }
+        subtotalCents: { type: integer }
+        discountCents: { type: integer }
+        deliveryFeeCents: { type: integer }
+        totalCents: { type: integer }
+        promoApplied: { type: boolean }
+    OrderStatus:
+      type: string
+      enum: [received, baking, out_for_delivery, ready_for_pickup, delivered, cancelled]
+    Order:
+      type: object
+      properties:
+        id: { type: string }
+        code: { type: string, example: '#301' }
+        userId: { type: string }
+        customerName: { type: string }
+        customerPhone: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId: { type: string }
+              name: { type: string }
+              details: { type: array, items: { type: string } }
+              pizza: { allOf: [{ $ref: '#/components/schemas/PizzaConfig' }], nullable: true }
+              notes: { type: string }
+              unitPriceCents: { type: integer }
+              quantity: { type: integer }
+        fulfillment: { type: string, enum: [delivery, pickup] }
+        address: { allOf: [{ $ref: '#/components/schemas/Address' }], nullable: true }
+        payment: { type: string, enum: [pix, card, cash] }
+        changeForCents: { type: integer, nullable: true }
+        subtotalCents: { type: integer }
+        discountCents: { type: integer }
+        deliveryFeeCents: { type: integer }
+        totalCents: { type: integer }
+        status: { $ref: '#/components/schemas/OrderStatus' }
+        statusHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              status: { $ref: '#/components/schemas/OrderStatus' }
+              at: { type: string, format: date-time }
+        estimatedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+    AdminStats:
+      type: object
+      properties:
+        ordersToday: { type: integer }
+        revenueTodayCents: { type: integer }
+        openOrders: { type: integer }
+        revenueLast7Days:
+          type: array
+          items:
+            type: object
+            properties:
+              date: { type: string, format: date-time }
+              totalCents: { type: integer }
+        topFlavors:
+          type: array
+          items:
+            type: object
+            properties:
+              productId: { type: string }
+              name: { type: string }
+              quantity: { type: number }
