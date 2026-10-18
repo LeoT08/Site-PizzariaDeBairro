@@ -9,6 +9,8 @@ export default defineConfig({
     alias: { '@': path.resolve(__dirname, 'src') },
   },
   build: {
+    // o pacote do three.js (~250 KB gzip) só carrega na página Monte sua pizza
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {

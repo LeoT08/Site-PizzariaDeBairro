@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useMemo, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/field'
 import { QuantityStepper, Skeleton } from '@/components/ui/misc'
 import { PizzaArt, ToppingIcon } from '@/features/builder/PizzaArt'
 import { Pizza3D } from '@/features/builder/Pizza3D'
+import { supportsWebGL } from '@/features/builder3d/webgl'
 import { useCart } from '@/features/cart/cart'
 import { useStoreStatus } from '@/features/store/useStoreStatus'
 import { PricingError, priceItem } from '@/lib/pricing'
@@ -16,6 +17,10 @@ import { usePageTitle } from '@/lib/usePageTitle'
 import { cn, formatPrice } from '@/lib/utils'
 
 const SIZE_SCALE: Record<PizzaSize, number> = { broto: 0.78, media: 0.89, grande: 1 }
+
+// O three.js (o mais pesado do site) só é baixado quando alguém abre o montador.
+// Sem WebGL, a página usa o desenho em SVG.
+const PizzaScene = lazy(() => import('@/features/builder3d/PizzaScene'))
 
 /** Os passos são uma sequência de verdade, por isso numerados */
 function Step({ n, title, hint, children }: { n: number; title: string; hint?: string; children: ReactNode }) {
@@ -73,6 +78,7 @@ export default function MonteSuaPizza() {
   const [notes, setNotes] = useState('')
   const [qty, setQty] = useState(1)
   const [view3d, setView3d] = useState(false)
+  const [webgl] = useState(supportsWebGL)
 
   const b = rules?.builder
   const toppings = useMemo(
@@ -165,6 +171,25 @@ export default function MonteSuaPizza() {
                   view3d ? 'bg-[radial-gradient(circle_at_50%_35%,#7A5230,#3E2716)]' : 'bg-manteiga',
                 )}
               >
+                {webgl ? (
+                  <div className="relative mx-auto aspect-square w-full max-w-[520px]">
+                    <Suspense fallback={<div className="h-full w-full p-4">{art}</div>}>
+                      <PizzaScene
+                        size={size}
+                        sauce={sauce}
+                        cheese={cheese}
+                        toppings={toppings}
+                        crust={crust}
+                        finished={view3d}
+                      />
+                    </Suspense>
+                    {view3d && (
+                      <p className="pointer-events-none absolute inset-x-0 bottom-0 text-center text-sm text-white/80">
+                        Arraste para girar
+                      </p>
+                    )}
+                  </div>
+                ) : (
                 <AnimatePresence mode="wait" initial={false}>
                   {view3d ? (
                     <motion.div key="3d" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -184,8 +209,9 @@ export default function MonteSuaPizza() {
                     </motion.div>
                   )}
                 </AnimatePresence>
+                )}
                 {!view3d && toppingIds.length === 0 && (
-                  <p className="absolute inset-x-0 bottom-5 text-center text-sm text-oregano">
+                  <p className="pointer-events-none absolute inset-x-0 bottom-5 text-center text-sm text-oregano">
                     Escolha os ingredientes e eles caem aqui
                   </p>
                 )}
