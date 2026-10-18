@@ -93,11 +93,11 @@ Para cada item do pedido:
   - **Promoção:** se o dia (no fuso da loja) está em `promo.weekdays`, o tamanho é `promo.size` e o preço do sabor passa de `promo.priceCents`, o desconto por unidade é `preço do sabor - promo.priceCents`. A borda não entra no desconto.
 - O nome e os detalhes do item são montados no servidor (`"Pizza grande meio Calabresa, meio Portuguesa"`).
 
-- **Monte sua pizza:**  e .
-  - .
-  - De 1 a  ingredientes, sem repetir; molho, queijo e ingredientes precisam existir em .
+- **Monte sua pizza:** `productId = rules.builder.productId` e `pizza.custom = { sauce, cheese, toppings: string[] }`.
+  - `unitPriceCents = basePrices[size] + sauce.priceCents + cheese.priceCents + soma dos toppings + crust.priceCents`.
+  - De 1 a `maxToppings` ingredientes, sem repetir; molho, queijo e ingredientes precisam existir em `rules.builder`.
   - Não entra na promoção do dia e não pode ser meio a meio.
-  -  de cada ingrediente diz ao front qual desenho usar na animação da montagem.
+  - O `kind` de cada ingrediente diz ao front qual desenho usar na animação da montagem.
 
 No pedido:
 
