@@ -32,6 +32,36 @@ export const seedRules: MenuRules = {
   pickupEtaMin: [25, 30],
   opensAt: '18:00',
   closesAt: '23:30',
+  builder: {
+    productId: 'custom-pizza',
+    basePrices: { broto: 3490, media: 4990, grande: 6290 },
+    sauces: [
+      { id: 'tomate', name: 'Molho de tomate da casa', priceCents: 0 },
+      { id: 'branco', name: 'Molho branco', priceCents: 300 },
+    ],
+    cheeses: [
+      { id: 'mucarela', name: 'Muçarela', priceCents: 0 },
+      { id: 'bufala', name: 'Muçarela de búfala', priceCents: 900 },
+      { id: 'sem-queijo', name: 'Sem queijo', priceCents: 0 },
+    ],
+    toppings: [
+      { id: 'calabresa', name: 'Calabresa', kind: 'calabresa', priceCents: 700 },
+      { id: 'bacon', name: 'Bacon', kind: 'bacon', priceCents: 800 },
+      { id: 'frango', name: 'Frango desfiado', kind: 'frango', priceCents: 800 },
+      { id: 'presunto', name: 'Presunto', kind: 'presunto', priceCents: 600 },
+      { id: 'champignon', name: 'Champignon', kind: 'champignon', priceCents: 600 },
+      { id: 'palmito', name: 'Palmito', kind: 'palmito', priceCents: 700 },
+      { id: 'catupiry', name: 'Catupiry', kind: 'catupiry', priceCents: 600 },
+      { id: 'ovo', name: 'Ovo', kind: 'ovo', priceCents: 400 },
+      { id: 'tomate', name: 'Tomate', kind: 'tomate', priceCents: 400 },
+      { id: 'cebola', name: 'Cebola', kind: 'cebola', priceCents: 300 },
+      { id: 'pimentao', name: 'Pimentão', kind: 'pimentao', priceCents: 400 },
+      { id: 'azeitona', name: 'Azeitona preta', kind: 'azeitona', priceCents: 400 },
+      { id: 'milho', name: 'Milho', kind: 'milho', priceCents: 400 },
+      { id: 'manjericao', name: 'Manjericão fresco', kind: 'manjericao', priceCents: 300 },
+    ],
+    maxToppings: 6,
+  },
 }
 
 export const seedCategories: Category[] = [

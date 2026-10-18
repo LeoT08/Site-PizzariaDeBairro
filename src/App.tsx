@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/misc'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import Home from '@/pages/Home'
 import Cardapio from '@/pages/Cardapio'
+import MonteSuaPizza from '@/pages/MonteSuaPizza'
 import Checkout from '@/pages/Checkout'
 import Pedido from '@/pages/Pedido'
 import { Cadastro, Login } from '@/pages/Auth'
@@ -24,6 +25,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/cardapio" element={<Cardapio />} />
+          <Route path="/monte-sua-pizza" element={<MonteSuaPizza />} />
           <Route path="/finalizar" element={<Checkout />} />
           <Route path="/pedido/:code" element={<RequireAuth><Pedido /></RequireAuth>} />
           <Route path="/entrar" element={<Login />} />

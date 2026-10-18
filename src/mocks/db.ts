@@ -5,7 +5,7 @@ import { seedCategories, seedOrders, seedProducts, seedRules, seedUsers, type Us
 // Para zerar: localStorage.removeItem('pb:mockdb') ou resetDb().
 
 const STORAGE_KEY = 'pb:mockdb'
-const VERSION = 1
+const VERSION = 2
 
 interface Tables {
   version: number

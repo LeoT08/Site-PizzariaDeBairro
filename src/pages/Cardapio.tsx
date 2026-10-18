@@ -10,6 +10,8 @@ import { ProductCard, ProductCardSkeleton } from '@/features/catalog/ProductCard
 import { useStoreStatus } from '@/features/store/useStoreStatus'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { cn } from '@/lib/utils'
+import { Link } from 'react-router-dom'
+import { PizzaArt } from '@/features/builder/PizzaArt'
 
 export default function Cardapio() {
   usePageTitle('Cardápio')
@@ -98,6 +100,18 @@ export default function Cardapio() {
           </EmptyState>
         ) : (
           <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+            {category === 'pizzas' && !q && rules && (
+              <Link
+                to="/monte-sua-pizza"
+                className="group flex flex-col rounded-3xl border-2 border-dashed border-molho/40 p-5 transition-colors hover:border-molho hover:bg-molho-wash"
+              >
+                <span className="mx-auto block w-3/5 transition-transform duration-700 group-hover:rotate-12">
+                  <PizzaArt still sauce="tomate" cheese="mucarela" crust="tradicional" toppings={rules.builder.toppings.filter((t) => ['calabresa', 'cebola', 'azeitona', 'manjericao'].includes(t.id))} className="w-full" />
+                </span>
+                <span className="mt-4 font-display text-xl">Monte sua pizza</span>
+                <span className="mt-1 text-[0.9375rem] text-oregano">Escolha molho, queijo e até {rules.builder.maxToppings} ingredientes e veja a pizza ficando pronta.</span>
+              </Link>
+            )}
             {products.isLoading
               ? Array.from({ length: 6 }, (_, i) => <ProductCardSkeleton key={i} />)
               : products.data?.map((p) => <ProductCard key={p.id} product={p} />)}

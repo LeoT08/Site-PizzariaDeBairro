@@ -9,6 +9,7 @@ import { Sheet } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 
 const links = [
+  { to: '/monte-sua-pizza', label: 'Monte sua pizza' },
   { to: '/cardapio', label: 'Cardápio' },
   { to: '/cardapio?categoria=salgados', label: 'Salgados' },
   { to: '/cardapio?categoria=bebidas', label: 'Bebidas' },

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useProducts } from '@/api/queries'
-import { ButtonLink, buttonClass } from '@/components/ui/button'
+import { ButtonLink } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/misc'
 import { PageTransition } from '@/components/layout/Layout'
 import { StoreStatusPill } from '@/components/layout/Header'
@@ -10,7 +10,7 @@ import { ProductCard, ProductCardSkeleton } from '@/features/catalog/ProductCard
 import { useStoreStatus } from '@/features/store/useStoreStatus'
 import { STORE } from '@/lib/constants'
 import { usePageTitle } from '@/lib/usePageTitle'
-import { formatPrice, whatsappLink } from '@/lib/utils'
+import { formatPrice } from '@/lib/utils'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -49,21 +49,16 @@ function Hero() {
           A pizza do bairro, quentinha na sua porta.
         </motion.h1>
         <p className="mt-6 max-w-prose text-lg text-tinta-soft">
-          Massa de longa fermentação, molho de tomate feito aqui e forno a lenha. Monte inteira ou meio a meio,
-          escolha a borda e acompanhe o pedido até chegar.
+          Massa de longa fermentação, molho de tomate feito aqui e forno a lenha. Monte a sua ingrediente por
+          ingrediente ou escolha um clássico do cardápio, e acompanhe o pedido até chegar.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink to="/cardapio" size="lg">
-            Montar minha pizza
+          <ButtonLink to="/monte-sua-pizza" size="lg">
+            Monte sua pizza
           </ButtonLink>
-          <a
-            href={whatsappLink('Olá! Gostaria de fazer um pedido.')}
-            target="_blank"
-            rel="noreferrer"
-            className={buttonClass('secondary', 'lg')}
-          >
-            Pedir pelo WhatsApp
-          </a>
+          <ButtonLink to="/cardapio" variant="secondary" size="lg">
+            Ver o cardápio
+          </ButtonLink>
         </div>
       </div>
 

@@ -67,6 +67,43 @@ export interface ProductQuery {
 }
 
 /** Regras de montagem e preço da pizza, servidas pela API para o front não fixar valores. */
+export type ToppingKind =
+  | 'calabresa'
+  | 'bacon'
+  | 'frango'
+  | 'presunto'
+  | 'champignon'
+  | 'cebola'
+  | 'tomate'
+  | 'azeitona'
+  | 'milho'
+  | 'pimentao'
+  | 'palmito'
+  | 'ovo'
+  | 'catupiry'
+  | 'manjericao'
+
+export interface BuilderOption {
+  id: string
+  name: string
+  priceCents: number
+}
+
+export interface Topping extends BuilderOption {
+  /** Desenho usado na animação da montagem */
+  kind: ToppingKind
+}
+
+/** Monte sua pizza: base por tamanho (massa, molho e queijo) mais ingredientes cobrados à parte */
+export interface BuilderRules {
+  productId: string
+  basePrices: Record<PizzaSize, number>
+  sauces: BuilderOption[]
+  cheeses: BuilderOption[]
+  toppings: Topping[]
+  maxToppings: number
+}
+
 export interface MenuRules {
   sizes: { id: PizzaSize; name: string; slices: number; diameterCm: number }[]
   crusts: { id: CrustType; name: string; priceCents: number }[]
@@ -80,6 +117,13 @@ export interface MenuRules {
   /** Horário de funcionamento, "HH:MM" no fuso de São Paulo */
   opensAt: string
   closesAt: string
+  builder: BuilderRules
+}
+
+export interface CustomPizza {
+  sauce: string
+  cheese: string
+  toppings: string[]
 }
 
 export interface PizzaConfig {
@@ -87,6 +131,8 @@ export interface PizzaConfig {
   /** Segundo sabor, para meio a meio */
   secondFlavorId: string | null
   crust: CrustType
+  /** Só no Monte sua pizza (productId = rules.builder.productId) */
+  custom?: CustomPizza
 }
 
 export interface CartItemInput {

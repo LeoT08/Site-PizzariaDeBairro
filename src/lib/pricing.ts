@@ -59,6 +59,8 @@ export function priceItem(
   rules: MenuRules,
   promoDay: boolean,
 ): PricedItem {
+  if (item.productId === rules.builder.productId) return priceCustom(item, rules)
+
   const product = findProduct(item.productId)
   if (!product || !product.available) {
     throw new PricingError('PRODUCT_UNAVAILABLE', 'Um dos itens saiu do cardápio. Remova-o da sacola.')
@@ -121,6 +123,57 @@ export function priceItem(
     notes,
     unitPriceCents,
     unitDiscountCents,
+    quantity: item.quantity,
+  }
+}
+
+/** Monte sua pizza: base do tamanho + molho + queijo + ingredientes + borda. Sem promoção. */
+function priceCustom(item: CartItemInput, rules: MenuRules): PricedItem {
+  const b = rules.builder
+  if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > MAX_QTY) {
+    throw new PricingError('INVALID_QUANTITY', 'Quantidade inválida para a pizza montada.')
+  }
+  const cfg = item.pizza
+  const size = rules.sizes.find((s) => s.id === cfg?.size)
+  const crust = rules.crusts.find((c) => c.id === cfg?.crust)
+  const sauce = b.sauces.find((s) => s.id === cfg?.custom?.sauce)
+  const cheese = b.cheeses.find((c) => c.id === cfg?.custom?.cheese)
+  if (!cfg?.custom || !size || !crust || !sauce || !cheese) {
+    throw new PricingError('INVALID_PIZZA', 'Escolha tamanho, molho, queijo e borda da pizza montada.')
+  }
+  const ids = [...new Set(cfg.custom.toppings)]
+  if (ids.length === 0) throw new PricingError('INVALID_PIZZA', 'Escolha pelo menos um ingrediente.')
+  if (ids.length > b.maxToppings) {
+    throw new PricingError('INVALID_PIZZA', `Escolha no máximo ${b.maxToppings} ingredientes.`)
+  }
+  const toppings = ids.map((id) => b.toppings.find((t) => t.id === id))
+  if (toppings.some((t) => !t)) throw new PricingError('INVALID_PIZZA', 'Um dos ingredientes não está disponível.')
+
+  const unitPriceCents =
+    b.basePrices[size.id] +
+    sauce.priceCents +
+    cheese.priceCents +
+    crust.priceCents +
+    toppings.reduce((s, t) => s + t!.priceCents, 0)
+
+  return {
+    productId: b.productId,
+    name: `Pizza ${size.name.toLowerCase()} montada por você`,
+    details: [
+      `${size.slices} fatias, ${size.diameterCm} cm`,
+      `${sauce.name}, ${cheese.name.toLowerCase()}`,
+      toppings.map((t) => t!.name).join(', '),
+      crust.id === 'tradicional' ? 'Borda tradicional' : `Borda recheada de ${crust.name.toLowerCase()}`,
+    ],
+    pizza: {
+      size: size.id,
+      crust: crust.id,
+      secondFlavorId: null,
+      custom: { sauce: sauce.id, cheese: cheese.id, toppings: ids },
+    },
+    notes: item.notes?.trim().slice(0, 140) ?? '',
+    unitPriceCents,
+    unitDiscountCents: 0,
     quantity: item.quantity,
   }
 }

@@ -69,7 +69,15 @@ Os tipos TypeScript de cada payload estão em `src/api/types.ts`, e a especifica
   "deliveryEtaMin": [40, 55],
   "pickupEtaMin": [25, 30],
   "opensAt": "18:00",
-  "closesAt": "23:30"
+  "closesAt": "23:30",
+  "builder": {
+    "productId": "custom-pizza",
+    "basePrices": { "broto": 3490, "media": 4990, "grande": 6290 },
+    "sauces": [{ "id": "tomate", "name": "Molho de tomate da casa", "priceCents": 0 }, ...],
+    "cheeses": [{ "id": "mucarela", "name": "Muçarela", "priceCents": 0 }, ...],
+    "toppings": [{ "id": "calabresa", "name": "Calabresa", "kind": "calabresa", "priceCents": 700 }, ...],
+    "maxToppings": 6
+  }
 }
 ```
 
@@ -84,6 +92,12 @@ Para cada item do pedido:
   - `unitPriceCents = preço do sabor + crust.priceCents`.
   - **Promoção:** se o dia (no fuso da loja) está em `promo.weekdays`, o tamanho é `promo.size` e o preço do sabor passa de `promo.priceCents`, o desconto por unidade é `preço do sabor - promo.priceCents`. A borda não entra no desconto.
 - O nome e os detalhes do item são montados no servidor (`"Pizza grande meio Calabresa, meio Portuguesa"`).
+
+- **Monte sua pizza:**  e .
+  - .
+  - De 1 a  ingredientes, sem repetir; molho, queijo e ingredientes precisam existir em .
+  - Não entra na promoção do dia e não pode ser meio a meio.
+  -  de cada ingrediente diz ao front qual desenho usar na animação da montagem.
 
 No pedido:
 

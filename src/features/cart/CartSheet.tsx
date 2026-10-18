@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Trash2 } from 'lucide-react'
-import { useQuote } from '@/api/queries'
+import { useQuote, useRules } from '@/api/queries'
+import { PizzaArt } from '@/features/builder/PizzaArt'
 import { Sheet } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { EmptyState, QuantityStepper } from '@/components/ui/misc'
@@ -9,7 +10,16 @@ import { MAX_QTY } from '@/lib/pricing'
 import { formatPrice } from '@/lib/utils'
 import { toCartItems, useCart, type CartLine } from './cart'
 
-export function LineThumb({ images }: { images: string[] }) {
+export function LineThumb({ images, pizza }: { images: string[]; pizza?: CartLine['pizza'] }) {
+  const { data: rules } = useRules()
+  if (pizza?.custom && rules) {
+    const toppings = pizza.custom.toppings.map((id) => rules.builder.toppings.find((t) => t.id === id)!).filter(Boolean)
+    return (
+      <span className="block h-16 w-16 shrink-0">
+        <PizzaArt still sauce={pizza.custom.sauce} cheese={pizza.custom.cheese} toppings={toppings} crust={pizza.crust} className="h-full w-full" />
+      </span>
+    )
+  }
   if (images.length > 1) {
     return (
       <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-full">
@@ -26,7 +36,7 @@ function Line({ line }: { line: CartLine }) {
   const { setQuantity, remove } = useCart()
   return (
     <motion.li layout exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="flex gap-4 py-4">
-      <LineThumb images={line.images} />
+      <LineThumb images={line.images} pizza={line.pizza} />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-2">
           <p className="font-medium leading-snug">{line.name}</p>
